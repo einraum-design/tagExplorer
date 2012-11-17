@@ -1,26 +1,16 @@
 package tagexplorer;
 
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-
-import controlP5.ControlEvent;
 import controlP5.ControlP5;
 import controlP5.Controller;
-import controlP5.ControllerGroup;
 import controlP5.Textfield;
-
 import processing.core.PApplet;
 import processing.core.PFont;
 
@@ -46,9 +36,9 @@ public class TagExplorer extends PApplet {
 		cp5_Promt = new ControlP5(this);
 		cp5_Menu = new ControlP5(this);
 		
-		cp5_Menu.addToggle("Location").setValue(0)
-		.setPosition(200, 0).setSize(80, 40).getCaptionLabel()
-		.align(ControlP5.CENTER, ControlP5.CENTER);
+//		cp5_Menu.addToggle("Location").setValue(0)
+//		.setPosition(200, 0).setSize(80, 40).getCaptionLabel()
+//		.align(ControlP5.CENTER, ControlP5.CENTER);
 
 		// User registration
 		user = askForUser();
@@ -56,12 +46,13 @@ public class TagExplorer extends PApplet {
 		// location registration
 
 		textFont(font, 14);
-
+		
+		//SQL.queryTagList("files");
 	}
 	
-	public void Location(float val){
-		println("Location " + val);
-	}
+//	public void Location(float val){
+//		println("Location " + val);
+//	}
 
 	public void draw() {
 		background(0);
@@ -165,7 +156,7 @@ public class TagExplorer extends PApplet {
 	public boolean inDataBase(String tableName, String theText) {
 		boolean isInDB = false;
 
-		ArrayList<Tag> locationTags = SQL.queryTagList(tableName);
+		ArrayList<Tag> locationTags = SQL.queryLocationsTagList(tableName);
 
 		for (Tag t : locationTags) {
 //			System.out.println(t.name.toLowerCase() + "\t"
@@ -246,7 +237,9 @@ public class TagExplorer extends PApplet {
 			// System.out.println("isRegularFile: " + attr.isRegularFile());
 			// System.out.println("isSymbolicLink: " + attr.isSymbolicLink());
 			// System.out.println("size: " + attr.size());
-
+			
+			
+			
 			SQL.msql.execute("INSERT INTO " + "files"
 					+ " (name, path, size, creation_time) VALUES (\""
 					+ fileName + "\", \" " + url + "\", \" " + attr.size()

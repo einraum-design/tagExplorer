@@ -4,7 +4,7 @@ public class Tag {
 	
 	int id;
 	String name;
-//	String type;
+	//	String type;
 	
 	
 	
@@ -15,13 +15,15 @@ public class Tag {
 	
 	//locations
 	public Tag(String tableName, int id, String name){
+		this.id = id;
+		this.name = name;
 		
 		if(tableName.equals("locations")){
-			this.id = id;
-			this.name = name;
+			
 		}
 		
 	}
+
 
 	@Override
 	public String toString() {

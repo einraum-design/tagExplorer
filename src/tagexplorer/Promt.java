@@ -15,7 +15,7 @@ public class Promt {
 	ControlP5 cp5;
 	PFont font;
 	
-	
+	String message = "";
 	
 	
 	public Promt(PApplet p5, ControlP5 cp5, String label){
@@ -44,6 +44,11 @@ public class Promt {
 		cp5.addButton(name).setValue(value).activateBy(ControlP5.RELEASE)
 				.setPosition(x, y).setSize(80, 40).getCaptionLabel()
 				.align(ControlP5.CENTER, ControlP5.CENTER);
+	}
+	
+	public void showMessages(){
+		p5.fill(150);
+		p5.text(message, 20, 180);
 	}
 	
 	

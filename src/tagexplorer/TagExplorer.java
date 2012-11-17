@@ -29,7 +29,8 @@ public class TagExplorer extends PApplet {
 	User user = new User(0, "noname");
 	SQLhelper SQL;
 	PFont font;
-	ControlP5 cp5;
+	ControlP5 cp5_Promt;
+	ControlP5 cp5_Menu;
 	ArrayList<Tag> tags = new ArrayList<Tag>();
 
 	// PFrame f;
@@ -42,7 +43,12 @@ public class TagExplorer extends PApplet {
 		// ControlP5
 		font = createFont("arial", 20);
 
-		cp5 = new ControlP5(this);
+		cp5_Promt = new ControlP5(this);
+		cp5_Menu = new ControlP5(this);
+		
+		cp5_Menu.addToggle("Location").setValue(0)
+		.setPosition(200, 0).setSize(80, 40).getCaptionLabel()
+		.align(ControlP5.CENTER, ControlP5.CENTER);
 
 		// User registration
 		user = askForUser();
@@ -52,11 +58,16 @@ public class TagExplorer extends PApplet {
 		textFont(font, 14);
 
 	}
+	
+	public void Location(float val){
+		println("Location " + val);
+	}
 
 	public void draw() {
 		background(0);
 		
-		if(removeController){
+		// removeController by Button cancel
+		if (removeController) {
 			removeController();
 			removeController = !removeController;
 		}
@@ -64,31 +75,13 @@ public class TagExplorer extends PApplet {
 		fill(150);
 		text("User: " + user.getName(), 5, 16);
 
+		if (p != null) {
+			p.showMessages();
+		}
 		// List l = cp5.getAll();
 		// text("pc5 List.size()" + l.size(), 5, 30);
 		// text("Location: " + user.getName(), 5, 16);
 	}
-
-	// controlP5 INPUT
-
-	// eventListener
-	// public void controlEvent(ControlEvent theEvent) {
-	//
-	// println("Active Controller: " + theEvent.getController().getName());
-	//
-	// println(theEvent.toString());
-	//
-	// if (theEvent.isAssignableFrom(Textfield.class)) {
-	// println("controlEvent: accessing a string from controller '"
-	// + theEvent.getName() + "': " + theEvent.getStringValue());
-	// }
-	// }
-
-	// Direktaufruf der Funktion Ÿber control name
-	// public void input(String theText) {
-	// // automatically receives results from controller input
-	// println("a textfield event for controller 'input' : " + theText);
-	// }
 
 	public User askForUser() {
 		ArrayList<User> users = SQL.listUsers();
@@ -140,44 +133,57 @@ public class TagExplorer extends PApplet {
 		}
 	}
 
-	Promt p;
+	Promt p = null;
 	Boolean bSaveActive = false;
 	Boolean bCancelActive = false;
-	public void createLocation() {
-		// createButton("save", 0, 240, 100);
-		// createButton("cancel", 0, 300, 100);
-		// createTextField("locationInput", "Type Location name here");
-		removeController();
-		p = new Promt(this, cp5, "locationInput");
 
+	public void createLocation() {
+		removeController();
+		p = new Promt(this, cp5_Promt, "locationInput");
 		println("locationinput created");
 	}
 
-	
-
 	public void locationInput(String theText) {
-//		System.out.println("function locationInput");
-
-		if (!theText.equals("Type Location name here") && !theText.equals("")) {
+		// System.out.println("function locationInput");
+		theText = theText.trim();
+		if (theText.equals("Type Location name here") || theText.equals("")) {
+			p.message = "Enter Locationname";
+		} else if (inDataBase("locations", theText)) {
+			p.message = "Location " + theText + " already exists";
+		} else {
 			String locationName = theText;
 			String coordinates = "46.39342, 2.2134";
 
-			// SQL.msql.execute("INSERT INTO " + "locations"
-			// + " (name, coordinates) VALUES (\"" + locationName
-			// + "\", \" " + coordinates + "\")");
+			SQL.msql.execute("INSERT INTO " + "locations"
+					+ " (name, coordinates) VALUES (\"" + locationName
+					+ "\", \" " + coordinates + "\")");
 			System.out.println("Location " + locationName + " registered");
 			removeController();
-		} else {
-			System.out.println("no Textinput");
 		}
 	}
 
-	
+	public boolean inDataBase(String tableName, String theText) {
+		boolean isInDB = false;
+
+		ArrayList<Tag> locationTags = SQL.queryTagList(tableName);
+
+		for (Tag t : locationTags) {
+//			System.out.println(t.name.toLowerCase() + "\t"
+//					+ (theText.toLowerCase()));
+			if (t.name.toLowerCase().equals(theText.toLowerCase())) {
+				isInDB = true;
+				break;
+			}
+			// System.out.println(t.toString());
+		}
+
+		return isInDB;
+	}
 
 	public void save(float value) {
-		System.out.println("trigger save!");
+		// System.out.println("trigger save!");
 		if (bSaveActive) {
-			List l = cp5.getAll();
+			List l = cp5_Promt.getAll();
 			for (Object o : l) {
 				// System.out.println(o.toString());
 				if (o instanceof controlP5.Textfield) {
@@ -192,31 +198,34 @@ public class TagExplorer extends PApplet {
 				}
 			}
 		} else {
-//			System.out.println("setActive: save");
+			// System.out.println("setActive: save");
 			bSaveActive = true;
 		}
-//		System.out.println("end save");
+		// System.out.println("end save");
 	}
-	
+
 	boolean removeController = false;
+
 	public void cancel(float value) {
-		System.out.println("trigger cancel!");
+		// System.out.println("trigger cancel!");
 		if (bCancelActive) {
 			// remove all controller
 			removeController = true;
 		} else {
 			bCancelActive = true;
 		}
-//		System.out.println("end cancel");
+		// System.out.println("end cancel");
 	}
-	
-	public void removeController(){
-		List l = cp5.getAll();
+
+	public void removeController() {
+		List l = cp5_Promt.getAll();
 		for (Object ob : l) {
 			((Controller) ob).remove();
 		}
 		bSaveActive = false;
 		bCancelActive = false;
+		p = null;
+		System.out.println("removed Controller");
 	}
 
 	public void createNewFile(String url) {

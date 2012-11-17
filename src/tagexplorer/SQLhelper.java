@@ -35,7 +35,7 @@ public class SQLhelper {
 		boolean connected = false;
 		if (msql.connect()) {
 			connected = true;
-			System.out.println("SQL connected");
+			//System.out.println("SQL connected");
 		}
 		return connected;
 	}
@@ -53,5 +53,19 @@ public class SQLhelper {
 			System.out.println("not Connected listUsers()");
 		}
 		return userList;
+	}
+
+	public ArrayList<Tag> queryTagList(String tableName) {
+		ArrayList<Tag> locationTags = new ArrayList<Tag>();
+		if (checkConnection()) {
+			msql.query("SELECT * FROM " + tableName);
+			while (msql.next()) {
+				Tag tag = new Tag(tableName, msql.getInt("ID"), msql.getString("name"));
+				locationTags.add(tag);
+			}
+		} else {
+			System.out.println("not Connected listUsers()");
+		}
+		return locationTags;
 	}
 }

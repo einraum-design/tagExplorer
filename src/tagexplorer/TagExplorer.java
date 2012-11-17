@@ -55,12 +55,17 @@ public class TagExplorer extends PApplet {
 
 	public void draw() {
 		background(0);
+		
+		if(removeController){
+			removeController();
+			removeController = !removeController;
+		}
 
 		fill(150);
 		text("User: " + user.getName(), 5, 16);
 
-		List l = cp5.getAll();
-		text("pc5 List.size()" + l.size(), 5, 30);
+		// List l = cp5.getAll();
+		// text("pc5 List.size()" + l.size(), 5, 30);
 		// text("Location: " + user.getName(), 5, 16);
 	}
 
@@ -135,83 +140,83 @@ public class TagExplorer extends PApplet {
 		}
 	}
 
-	public void createTextField(String name, String value) {
-		cp5.addTextfield(name).setValue(value).setPosition(20, 100)
-				.setSize(200, 40).setFont(font).setFocus(true)
-				.setColor(color(255, 2525, 255));
-	}
-
-	public void createButton(String name, float value, int x, int y) {
-		cp5.addButton(name).setValue(value).activateBy(ControlP5.RELEASE)
-				.setPosition(x, y).setSize(80, 40).getCaptionLabel()
-				.align(ControlP5.CENTER, ControlP5.CENTER);
-	}
-
+	Promt p;
+	Boolean bSaveActive = false;
+	Boolean bCancelActive = false;
 	public void createLocation() {
+		// createButton("save", 0, 240, 100);
+		// createButton("cancel", 0, 300, 100);
+		// createTextField("locationInput", "Type Location name here");
+		removeController();
+		p = new Promt(this, cp5, "locationInput");
 
-		createButton("save", 0, 240, 100);
-		createButton("cancel", 0, 300, 100);
-		createTextField("locationInput", "Type Location name here");
-
-		// setButton active
-		List l = cp5.getAll();
-//		for (Object o : l) {
-//			// println(o.toString());
-//			if (o instanceof controlP5.Button) {
-//				((controlP5.Button) o).setValue(1);
-//			}
-//		}
 		println("locationinput created");
 	}
 
+	
+
+	public void locationInput(String theText) {
+//		System.out.println("function locationInput");
+
+		if (!theText.equals("Type Location name here") && !theText.equals("")) {
+			String locationName = theText;
+			String coordinates = "46.39342, 2.2134";
+
+			// SQL.msql.execute("INSERT INTO " + "locations"
+			// + " (name, coordinates) VALUES (\"" + locationName
+			// + "\", \" " + coordinates + "\")");
+			System.out.println("Location " + locationName + " registered");
+			removeController();
+		} else {
+			System.out.println("no Textinput");
+		}
+	}
+
+	
+
 	public void save(float value) {
-		if (value != 0) {
-			println("trigger save!");
+		System.out.println("trigger save!");
+		if (bSaveActive) {
 			List l = cp5.getAll();
 			for (Object o : l) {
-				// println(o.toString());
+				// System.out.println(o.toString());
 				if (o instanceof controlP5.Textfield) {
 					Textfield t = (Textfield) o;
 
 					// if locationInput
 					if (t.getLabel().equals("LOCATIONINPUT")) {
 						t.submit();
-						println("submitted");
+						System.out.println("submitted");
 						break;
 					}
 				}
 			}
 		} else {
-
+//			System.out.println("setActive: save");
+			bSaveActive = true;
 		}
-		// println("end save");
+//		System.out.println("end save");
 	}
-
+	
+	boolean removeController = false;
 	public void cancel(float value) {
-		if (value != 0) {
-			println("trigger cancel!");
+		System.out.println("trigger cancel!");
+		if (bCancelActive) {
 			// remove all controller
-			List l = cp5.getAll();
-			for (Object ob : l) {
-				((Controller) ob).remove();
-			}
-		}
-	}
-
-	public void locationInput(String theText) {
-		println("function locationInput");
-
-		if (!theText.equals("Type Location name here") && !theText.equals("")) {
-			String locationName = theText;
-			String coordinates = "46.39342, 2.2134";
-
-			SQL.msql.execute("INSERT INTO " + "locations"
-					+ " (name, coordinates) VALUES (\"" + locationName
-					+ "\", \" " + coordinates + "\")");
-			System.out.println("Location " + locationName + " registered");
+			removeController = true;
 		} else {
-			println("no Textinput");
+			bCancelActive = true;
 		}
+//		System.out.println("end cancel");
+	}
+	
+	public void removeController(){
+		List l = cp5.getAll();
+		for (Object ob : l) {
+			((Controller) ob).remove();
+		}
+		bSaveActive = false;
+		bCancelActive = false;
 	}
 
 	public void createNewFile(String url) {

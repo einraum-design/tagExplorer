@@ -49,6 +49,8 @@ public class TagExplorer extends PApplet {
 		textFont(font, 14);
 
 		// SQL.queryTagList("files");
+		
+		
 	}
 
 	// public void Location(float val){
@@ -63,6 +65,9 @@ public class TagExplorer extends PApplet {
 			removeController();
 			removeController = !removeController;
 		}
+		
+		
+		showFiles();
 
 		fill(150);
 		text("User: " + user.getName(), 5, 16);
@@ -73,6 +78,20 @@ public class TagExplorer extends PApplet {
 		// List l = cp5.getAll();
 		// text("pc5 List.size()" + l.size(), 5, 30);
 		// text("Location: " + user.getName(), 5, 16);
+	}
+	
+	
+	ArrayList<Tag> showFiles = null;
+	public void readFiles(){
+		showFiles = SQL.queryTagList("files");
+	}
+	
+	public void showFiles(){
+		if(showFiles != null){
+			for(int i = 0; i<showFiles.size(); i++){
+				text(showFiles.get(i).name, 10, 40 + i * 16);
+			}
+		}
 	}
 
 	public User askForUser() {
@@ -97,6 +116,9 @@ public class TagExplorer extends PApplet {
 			break;
 		case 'l':
 			createLocation();
+			break;
+		case 's':
+			readFiles();
 			break;
 
 		// case 't':

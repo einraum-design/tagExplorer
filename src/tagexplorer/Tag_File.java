@@ -12,8 +12,7 @@ public class Tag_File extends Tag {
 	public Tag_File(String tableName, int id, String name, float size,
 			String path, int creation_time, int expiration_time, int origin_ID,
 			int score) {
-		this.id = id;
-		this.name = name;
+		super(tableName, id, name);
 		this.size = size;
 		this.path = path;
 		this.creation_time = creation_time;

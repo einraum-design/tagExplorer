@@ -6,11 +6,7 @@ public class Tag {
 	String name;
 	//	String type;
 	
-	
-	
-	
 	public Tag(){
-		
 	}
 	
 	//locations
@@ -21,7 +17,6 @@ public class Tag {
 		if(tableName.equals("locations")){
 			
 		}
-		
 	}
 
 

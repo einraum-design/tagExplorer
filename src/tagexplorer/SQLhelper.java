@@ -22,20 +22,23 @@ public class SQLhelper {
 		msql = new MySQL(p5, host, database, user, pass);
 		System.out.println("SQL connection: " + checkConnection());
 
-		queries.put("files",
-				"ID, name, size, path, creation_time, expiration_time, origin_ID, score");
+//		queries.put("files",
+//				"ID, name, size, path, creation_time, expiration_time, origin_ID, score");
 	}
 
-	// public SQLhelper(PApplet p5, String user, String pass, String database,
-	// String host) {
-	// this.user = user;
-	// this.pass = pass;
-	// this.database = database;
-	// this.host = host;
-	// this.p5 = p5;
-	// msql = new MySQL(p5, host, database, user, pass);
-	// System.out.println("SQL connection: " + checkConnection());
-	// }
+	public SQLhelper(PApplet p5, String user, String pass, String database,
+			String host) {
+		this.user = user;
+		this.pass = pass;
+		this.database = database;
+		this.host = host;
+		this.p5 = p5;
+		msql = new MySQL(p5, host, database, user, pass);
+		System.out.println("SQL connection: " + checkConnection());
+		
+//		queries.put("files",
+//		"ID, name, size, path, creation_time, expiration_time, origin_ID, score");
+	}
 
 	boolean checkConnection() {
 		boolean connected = false;
@@ -61,21 +64,11 @@ public class SQLhelper {
 		return userList;
 	}
 
-	public ArrayList<Tag> queryLocationsTagList(String tableName) {
-		ArrayList<Tag> locationTags = new ArrayList<Tag>();
-		if (checkConnection()) {
-			msql.query("SELECT * FROM " + tableName);
-			while (msql.next()) {
-				Tag tag = new Tag(tableName, msql.getInt("ID"),
-						msql.getString("name"));
-				locationTags.add(tag);
-			}
-		} else {
-			System.out.println("not Connected listUsers()");
-		}
-		return locationTags;
-	}
 
+	// ArrayList<SQLTableInfo> tableInfo = getTableFields("files");
+	// for (SQLTableInfo info : tableInfo) {
+	// queryFields += " " + info.name;
+	// }
 	public ArrayList<SQLTableInfo> getTableFields(String tableName) {
 		ArrayList<SQLTableInfo> tableInfo = new ArrayList<SQLTableInfo>();
 
@@ -102,21 +95,25 @@ public class SQLhelper {
 
 	public ArrayList<Tag> queryTagList(String tableName) {
 		ArrayList<Tag> tags = new ArrayList<Tag>();
-		// ArrayList<SQLTableInfo> tableInfo = getTableFields("files");
 
-		String queryFields = "";
-		// for (SQLTableInfo info : tableInfo) {
-		// queryFields += " " + info.name;
-		// }
-		queryFields = queries.get(tableName);
-
-		ArrayList<Tag> locationTags = new ArrayList<Tag>();
 		if (checkConnection()) {
-			msql.query("SELECT (" + queryFields + ") FROM " + tableName);
+			//String queryFields = queries.get(tableName);
+			//msql.query("SELECT (" + queryFields + ") FROM " + tableName);
+			msql.query("SELECT * FROM " + tableName);
+			
 			while (msql.next()) {
 
 				if (tableName.equals("files")) {
-					Tag tag = new Tag_File(tableName, msql.getInt("ID"), msql.getString("name"), msql.getFloat("size"), msql.getString("path"), msql.getInt("creation_time"), msql.getInt("expiration_time"), msql.getInt("origin_ID"), msql.getInt("score"));
+					Tag tag = new Tag_File(tableName, msql.getInt("ID"),
+							msql.getString("name"), msql.getFloat("size"),
+							msql.getString("path"),
+							msql.getInt("creation_time"),
+							msql.getInt("expiration_time"),
+							msql.getInt("origin_ID"), msql.getInt("score"));
+					tags.add(tag);
+				} else if (tableName.equals("locations")) {
+					Tag tag = new Tag_Location(tableName, msql.getInt("ID"),
+							msql.getString("name"), msql.getString("coordinates"));
 					tags.add(tag);
 				}
 			}

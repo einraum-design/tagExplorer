@@ -5,6 +5,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +36,10 @@ public class TagExplorer extends PApplet {
 
 		cp5_Promt = new ControlP5(this);
 		cp5_Menu = new ControlP5(this);
-		
-//		cp5_Menu.addToggle("Location").setValue(0)
-//		.setPosition(200, 0).setSize(80, 40).getCaptionLabel()
-//		.align(ControlP5.CENTER, ControlP5.CENTER);
+
+		// cp5_Menu.addToggle("Location").setValue(0)
+		// .setPosition(200, 0).setSize(80, 40).getCaptionLabel()
+		// .align(ControlP5.CENTER, ControlP5.CENTER);
 
 		// User registration
 		user = askForUser();
@@ -46,17 +47,17 @@ public class TagExplorer extends PApplet {
 		// location registration
 
 		textFont(font, 14);
-		
-		//SQL.queryTagList("files");
+
+		// SQL.queryTagList("files");
 	}
-	
-//	public void Location(float val){
-//		println("Location " + val);
-//	}
+
+	// public void Location(float val){
+	// println("Location " + val);
+	// }
 
 	public void draw() {
 		background(0);
-		
+
 		// removeController by Button cancel
 		if (removeController) {
 			removeController();
@@ -153,23 +154,7 @@ public class TagExplorer extends PApplet {
 		}
 	}
 
-	public boolean inDataBase(String tableName, String theText) {
-		boolean isInDB = false;
-
-		ArrayList<Tag> locationTags = SQL.queryLocationsTagList(tableName);
-
-		for (Tag t : locationTags) {
-//			System.out.println(t.name.toLowerCase() + "\t"
-//					+ (theText.toLowerCase()));
-			if (t.name.toLowerCase().equals(theText.toLowerCase())) {
-				isInDB = true;
-				break;
-			}
-			// System.out.println(t.toString());
-		}
-
-		return isInDB;
-	}
+	
 
 	public void save(float value) {
 		// System.out.println("trigger save!");
@@ -220,8 +205,9 @@ public class TagExplorer extends PApplet {
 	}
 
 	public void createNewFile(String url) {
+		url = url.trim();
 		int index = url.lastIndexOf("/");
-		String path = url.substring(0, index - 1);
+		String path = url.substring(0, index);
 		String fileName = url.substring(index + 1);
 		Path file = FileSystems.getDefault().getPath(url);
 		BasicFileAttributes attr;
@@ -237,18 +223,50 @@ public class TagExplorer extends PApplet {
 			// System.out.println("isRegularFile: " + attr.isRegularFile());
 			// System.out.println("isSymbolicLink: " + attr.isSymbolicLink());
 			// System.out.println("size: " + attr.size());
-			
-			
-			
-			SQL.msql.execute("INSERT INTO " + "files"
-					+ " (name, path, size, creation_time) VALUES (\""
-					+ fileName + "\", \" " + url + "\", \" " + attr.size()
-					+ "\", \" " + attr.creationTime() + "\")");
-			System.out.println("File " + fileName + " registered");
+
+			if (inDataBase("files", url)) {
+				System.out.println("File " + fileName + " is already imported");
+			} else{
+				SQL.msql.execute("INSERT INTO " + "files"
+						+ " (name, path, size, creation_time) VALUES (\""
+						+ fileName.trim() + "\", \" " + url.trim() + "\", \" " + attr.size()
+						+ "\", \" " + new Timestamp(attr.creationTime().toMillis()) + "\")");
+				System.out.println("File " + fileName + " registered");
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			println("File not saved");
 		}
+	}
+	
+	public boolean inDataBase(String tableName, String theText) {
+		boolean isInDB = false;
+
+		ArrayList<Tag> tagList = SQL.queryTagList(tableName);
+
+		for (Tag t : tagList) {
+			if (t instanceof Tag_Location) {
+//				System.out.println("Location: " + t.name.trim().toLowerCase() + "\t"
+//						+ (theText.trim().toLowerCase()));
+				if (t.name.trim().toLowerCase().equals(theText.trim().toLowerCase())) {
+					isInDB = true;
+					return isInDB;
+				}
+			} else if (t instanceof Tag_File) {
+				// path!
+//				System.out.println("File: " + ((Tag_File) t).path.toLowerCase()
+//						+ "\t" + (theText.toLowerCase()));
+				if (((Tag_File) t).path.trim().toLowerCase().equals(
+						theText.trim().toLowerCase())) {
+					isInDB = true;
+					return isInDB;
+				}
+			} else{
+				println("What kind of Tag is it? in inDataBase()");
+			}
+			System.out.println(t.toString());
+		}
+		return isInDB;
 	}
 
 	public static void main(String _args[]) {

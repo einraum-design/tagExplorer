@@ -17,7 +17,7 @@ import processing.core.PFont;
 
 public class TagExplorer extends PApplet {
 
-	User user = new User(0, "noname");
+	Tag_User user = new Tag_User("users", 0, "noname", "no Password");
 	SQLhelper SQL;
 	PFont font;
 	ControlP5 cp5_Promt;
@@ -56,6 +56,14 @@ public class TagExplorer extends PApplet {
 	// public void Location(float val){
 	// println("Location " + val);
 	// }
+	
+	public void addTag(Tag_File file, Tag tag){
+		
+		if(tag instanceof Tag_Location){
+			SQL.addTag(file, tag);
+		}
+		
+	}
 
 	public void draw() {
 		background(0);
@@ -70,7 +78,7 @@ public class TagExplorer extends PApplet {
 		showFiles();
 
 		fill(150);
-		text("User: " + user.getName(), 5, 16);
+		text("User: " + user.name, 5, 16);
 
 		if (p != null) {
 			p.showMessages();
@@ -94,13 +102,13 @@ public class TagExplorer extends PApplet {
 		}
 	}
 
-	public User askForUser() {
-		ArrayList<User> users = SQL.listUsers();
-		for (User u : users) {
-			println(u.toString());
+	public Tag_User askForUser() {
+		ArrayList<Tag> users = SQL.queryTagList("users");
+		for (Tag u : users) {
+			println(((Tag_User)u).toString());
 		}
 
-		User user = users.get(0);
+		Tag_User user = (Tag_User)users.get(0);
 		return user;
 	}
 
@@ -119,6 +127,11 @@ public class TagExplorer extends PApplet {
 			break;
 		case 's':
 			readFiles();
+			break;
+		case 't':
+			Tag_File file = (Tag_File) showFiles.get(0);
+			Tag tag = new Tag_Location("locations", 5, "Ort", "coordinaten");
+			addTag(file, tag);
 			break;
 
 		// case 't':

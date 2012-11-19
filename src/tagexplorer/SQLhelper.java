@@ -1,5 +1,6 @@
 package tagexplorer;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -22,8 +23,8 @@ public class SQLhelper {
 		msql = new MySQL(p5, host, database, user, pass);
 		System.out.println("SQL connection: " + checkConnection());
 
-//		queries.put("files",
-//				"ID, name, size, path, creation_time, expiration_time, origin_ID, score");
+		// queries.put("files",
+		// "ID, name, size, path, creation_time, expiration_time, origin_ID, score");
 	}
 
 	public SQLhelper(PApplet p5, String user, String pass, String database,
@@ -35,9 +36,9 @@ public class SQLhelper {
 		this.p5 = p5;
 		msql = new MySQL(p5, host, database, user, pass);
 		System.out.println("SQL connection: " + checkConnection());
-		
-//		queries.put("files",
-//		"ID, name, size, path, creation_time, expiration_time, origin_ID, score");
+
+		// queries.put("files",
+		// "ID, name, size, path, creation_time, expiration_time, origin_ID, score");
 	}
 
 	boolean checkConnection() {
@@ -48,22 +49,6 @@ public class SQLhelper {
 		}
 		return connected;
 	}
-
-	public ArrayList<User> listUsers() {
-		ArrayList<User> userList = new ArrayList<User>();
-
-		if (checkConnection()) {
-			msql.query("SELECT * FROM users");
-			while (msql.next()) {
-				User user = new User(msql.getInt("ID"), msql.getString("name"));
-				userList.add(user);
-			}
-		} else {
-			System.out.println("not Connected listUsers()");
-		}
-		return userList;
-	}
-
 
 	// ArrayList<SQLTableInfo> tableInfo = getTableFields("files");
 	// for (SQLTableInfo info : tableInfo) {
@@ -97,10 +82,10 @@ public class SQLhelper {
 		ArrayList<Tag> tags = new ArrayList<Tag>();
 
 		if (checkConnection()) {
-			//String queryFields = queries.get(tableName);
-			//msql.query("SELECT (" + queryFields + ") FROM " + tableName);
+			// String queryFields = queries.get(tableName);
+			// msql.query("SELECT (" + queryFields + ") FROM " + tableName);
 			msql.query("SELECT * FROM " + tableName);
-			
+
 			while (msql.next()) {
 
 				if (tableName.equals("files")) {
@@ -113,13 +98,63 @@ public class SQLhelper {
 					tags.add(tag);
 				} else if (tableName.equals("locations")) {
 					Tag tag = new Tag_Location(tableName, msql.getInt("ID"),
-							msql.getString("name"), msql.getString("coordinates"));
+							msql.getString("name"),
+							msql.getString("coordinates"));
 					tags.add(tag);
+				} else if (tableName.equals("users")) {
+					Tag_User user = new Tag_User("users", msql.getInt("ID"),
+							msql.getString("name"), msql.getString("password"));
+					tags.add(user);
 				}
 			}
 		} else {
 			System.out.println("not Connected queryTagList()");
 		}
 		return tags;
+	}
+
+	// not finished, get Ids and types
+	public ArrayList<Tag> queryConnectedTagList(String tableName, Tag_File t) {
+		ArrayList<Tag> tags = new ArrayList<Tag>();
+
+		if (checkConnection()) {
+			msql.query("SELECT tag_ID, type FROM " + tableName
+					+ " WHERE file_ID = " + t.id);
+
+			ArrayList tagIds = new ArrayList();
+			while (msql.next()) {
+				tagIds.add(msql.getInt("tag_ID"));
+				tagIds.add(msql.getString("type"));
+			}
+		} else {
+			System.out.println("not Connected queryTagList()");
+		}
+		return tags;
+	}
+
+	public void addTag(Tag_File file, Tag tag) {
+		if (checkConnection()) {
+			// ask if COUNT der connection == 0 -> binding exists
+			msql.query("SELECT COUNT(*) FROM tag_binding WHERE file_ID = \""
+					+ file.id + "\" AND tag_ID = \"" + tag.id + "\"");
+			msql.next();
+			System.out.println("number of rows: " + msql.getInt(1));
+
+			if (msql.getInt(1) == 0) {
+
+				msql.execute("INSERT INTO tag_binding (file_ID, type, tag_ID, time) VALUES (\""
+						+ file.id
+						+ "\", \""
+						+ tag.type
+						+ "\", \""
+						+ tag.id
+						+ "\", \""
+						+ new Timestamp(System.currentTimeMillis())
+						+ "\")");
+				System.out.println("Added Tag Binding");
+			} else{
+				System.out.println("File-Tag binding exists already");
+			}
+		}
 	}
 }

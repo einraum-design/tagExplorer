@@ -4,7 +4,7 @@ public class Tag {
 	
 	int id;
 	String name;
-	//	String type;
+	String type = "tag";
 	
 	public Tag(){
 	}

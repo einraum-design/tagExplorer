@@ -13,6 +13,7 @@ public class Tag_File extends Tag {
 			String path, int creation_time, int expiration_time, int origin_ID,
 			int score) {
 		super(tableName, id, name);
+		this.type = "files";
 		this.size = size;
 		this.path = path;
 		this.creation_time = creation_time;

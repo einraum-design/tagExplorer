@@ -5,6 +5,7 @@ public class Tag_Location extends Tag {
 	
 	public Tag_Location(String tableName, int id, String name, String coordinates){
 		super(tableName, id, name);
+		this.type = "locataions";
 		this.coordinates = coordinates;
 	}
 }

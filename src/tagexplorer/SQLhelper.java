@@ -21,7 +21,7 @@ public class SQLhelper {
 	String database = "files_db";
 	String host = "localhost:8889";
 
-	HashMap<String, String> queries = new HashMap<String, String>();
+//	HashMap<String, String> queries = new HashMap<String, String>();
 	// queries.put("files",
 	// "ID, name, size, path, creation_time, expiration_time, origin_ID, score");
 
@@ -232,5 +232,48 @@ public class SQLhelper {
 			System.out.println(t.toString());
 		}
 		return isInDB;
+	}
+
+	public Tag_File getLastFile() {
+		Tag_File file = null;
+		
+		msql.query("SELECT LAST_INSERT_ID() FROM files");
+		msql.next();
+		int fileId = msql.getInt(1);
+		
+		msql.query("SELECT * FROM files WHERE ID = \"" + fileId + "\"");
+		msql.next();
+		
+//		int originId = msql.getInt("origin_ID");
+//		if(msql.getInt("origin_ID") == 0){
+//			originId = fileId;
+//		} 
+		Tag tag = new Tag_File("files", msql.getInt("ID"),
+				msql.getString("name"), msql.getFloat("size"),
+				msql.getString("path"),
+				msql.getInt("creation_time"),
+				msql.getInt("expiration_time"),
+				msql.getInt("origin_ID"), msql.getInt("score"));
+		
+		
+		
+//		int originId = msql.getInt("origin_ID");
+//		if(msql.getInt("origin_ID") == 0){
+//			originId = fileId;
+//		} 
+//		
+//		int expirationTime = msql.getTimestamp("expiration_time").getSeconds();
+//		if(msql.getTimestamp("expiration_time") == null){
+//			expirationTime = msql.getTimestamp(System.get).getSeconds();
+//		}
+//		
+//		file = new Tag_File("files", msql.getInt("ID"), msql.getString("name"), msql.getFloat("size"),
+//				 msql.getString("path"), msql.getTimestamp("creation_time").getSeconds(), expirationTime, msql.getInt("origin_ID"),
+//				 msql.getInt("score"));
+		
+		
+		
+		
+		return file;
 	}
 }

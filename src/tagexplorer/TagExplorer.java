@@ -20,7 +20,10 @@ import toxi.physics.behaviors.GravityBehavior;
 
 public class TagExplorer extends PApplet {
 
-	Tag_User user = new Tag_User("users", 0, "noname", "no Password");
+	//Tag_User user = new Tag_User("users", 0, "noname", "no Password");
+	Tag_User user = null;
+	Tag_Location location = null;
+	
 	SQLhelper SQL;
 	PFont font;
 	ControlP5 cp5_Promt;
@@ -49,7 +52,7 @@ public class TagExplorer extends PApplet {
 		// .align(ControlP5.CENTER, ControlP5.CENTER);
 
 		// User registration
-		user = (Tag_User) SQL.queryTagList("users").get(0);
+		// user = (Tag_User) SQL.queryTagList("users").get(0);
 		showFiles = SQL.queryTagList("files");
 
 		// toxi VerletPhysics
@@ -75,8 +78,10 @@ public class TagExplorer extends PApplet {
 		showFiles();
 
 		fill(150);
-		text("User: " + user.name, 5, 16);
-
+		if(user != null){
+			text("User: " + user.name, 5, 16);
+		}
+		
 		if (p != null) {
 			p.showMessages();
 		}
@@ -100,23 +105,38 @@ public class TagExplorer extends PApplet {
 	public void keyPressed() {
 
 		switch (key) {
-		case 'o':
+		case 'O':
 			String url = selectInput("Select a file to process:");
 			if (url != null) {
 				println("Create new File: url: " + url);
 				createNewFile("files", url);
+				
+				Tag_File file = SQL.getLastFile();
+				if(user != null){
+					//Tag_File file = (Tag_File) showFiles.get(0);
+					SQL.bindTag(file, user);
+				}
+				
+				
+				
 			}
+			
 			break;
-		case 'l':
+		case 'U':
+			// Set User
+			user = (Tag_User) SQL.queryTagList("users").get(0);
+			break;
+		case 'L':
 			createPromt("locations");
 			break;
-		case 'k':
+		case 'K':
 			createPromt("keywords");
 			break;
-		case 'p':
+		case 'P':
 			createPromt("projects");
 			break;
-		case 't':
+		case 'T':
+			// Bind File - Tag
 			Tag_File file = (Tag_File) showFiles.get(0);
 			Tag tag = new Tag_Location("locations", 5, "Ort", "coordinaten");
 			SQL.bindTag(file, tag);

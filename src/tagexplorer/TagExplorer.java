@@ -113,14 +113,21 @@ public class TagExplorer extends PApplet {
 		case 'k':
 			createPromt("keywords");
 			break;
+		case 'p':
+			createPromt("projects");
+			break;
 		case 't':
 			Tag_File file = (Tag_File) showFiles.get(0);
 			Tag tag = new Tag_Location("locations", 5, "Ort", "coordinaten");
-			addTag(file, tag);
+			SQL.bindTag(file, tag);
 			break;
 
 		}
 	}
+
+	// ///////////// Tag handling /////////////////////
+	
+
 
 	// ////////// Tag Creation /////////////////////
 	public void createNewFile(String tableName, String s) {
@@ -129,7 +136,7 @@ public class TagExplorer extends PApplet {
 			System.out.println("Tag " + s + " is already imported in "
 					+ tableName);
 		} else {
-			createDbTag(tableName, s);
+			SQL.createDbTag(tableName, s);
 		}
 	}
 
@@ -143,7 +150,22 @@ public class TagExplorer extends PApplet {
 		} else if (SQL.inDataBase(tableName, theText)) {
 			p.message = "Location " + theText + " already exists";
 		} else {
-			createDbTag(tableName, theText);
+			SQL.createDbTag(tableName, theText);
+			removeController();
+		}
+	}
+	
+	public void projectInput(String theText) {
+		// System.out.println("function locationInput");
+		theText = theText.trim();
+		String tableName = "projects";
+
+		if (theText.equals("Type Projects name here") || theText.equals("")) {
+			p.message = "Enter Locationname";
+		} else if (SQL.inDataBase(tableName, theText)) {
+			p.message = "Project " + theText + " already exists";
+		} else {
+			SQL.createDbTag(tableName, theText);
 			removeController();
 		}
 	}
@@ -159,60 +181,9 @@ public class TagExplorer extends PApplet {
 		} else if (SQL.inDataBase(tableName, theText)) {
 			p.message = "Keyword " + theText + " already exists";
 		} else {
-			createDbTag(tableName, theText);
+			SQL.createDbTag(tableName, theText);
 			removeController();
 		}
-	}
-
-	// /////////// Tag in Datenbank eintragen ////////////////
-	public void createDbTag(String tableName, String s) {
-
-		if (tableName.equals("keywords")) {
-			String keyword = s;
-			SQL.msql.execute("INSERT INTO " + tableName + " (name) VALUES (\""
-					+ keyword + "\")");
-			System.out.println("Keyword " + keyword + " registered");
-		} else if (tableName.equals("locations")) {
-			String locationName = s;
-			String coordinates = "46.39342, 2.2134";
-			SQL.msql.execute("INSERT INTO " + tableName
-					+ " (name, coordinates) VALUES (\"" + locationName
-					+ "\", \" " + coordinates + "\")");
-			System.out.println("Location " + locationName + " registered");
-		} else if (tableName.equals("files")) {
-			int index = s.lastIndexOf("/");
-			String fileName = s.substring(index + 1);
-			Path file = FileSystems.getDefault().getPath(s);
-			BasicFileAttributes attr;
-			try {
-				attr = Files.readAttributes(file, BasicFileAttributes.class);
-
-				if (!attr.isSymbolicLink()) {
-					SQL.msql.execute("INSERT INTO " + tableName
-							+ " (name, path, size, creation_time) VALUES (\""
-							+ fileName.trim() + "\", \" " + s.trim()
-							+ "\", \" " + attr.size() + "\", \" "
-							+ new Timestamp(attr.creationTime().toMillis())
-							+ "\")");
-					System.out.println("File " + fileName + " registered");
-				} else {
-					System.out.println("File " + fileName
-							+ " ist keine Datei, sondern ein Link!");
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				println("File not saved");
-			}
-		}
-	}
-
-	// ///////////// Tag handling /////////////////////
-	public void addTag(Tag_File file, Tag tag) {
-
-		if (tag instanceof Tag_Location) {
-			SQL.addTag(file, tag);
-		}
-
 	}
 
 	// ///////////// Promt Location ////////////
@@ -226,8 +197,11 @@ public class TagExplorer extends PApplet {
 		if (type.equals("locations")) {
 			p = new Promt(this, cp5_Promt, "locationInput");
 			println("locationinput created");
-		} else if(type.equals("keywords")) {
+		} else if (type.equals("keywords")) {
 			p = new Promt(this, cp5_Promt, "keywordInput");
+			println("keywordinput created");
+		} else if (type.equals("projects")) {
+			p = new Promt(this, cp5_Promt, "projectInput");
 			println("keywordinput created");
 		}
 	}
@@ -243,10 +217,10 @@ public class TagExplorer extends PApplet {
 					Textfield t = (Textfield) o;
 
 					// if locationInput
-					//if (t.getLabel().equals("LOCATIONINPUT")) {
-						t.submit();
-						System.out.println("submitted");
-						break;
+					// if (t.getLabel().equals("LOCATIONINPUT")) {
+					t.submit();
+					System.out.println("submitted");
+					break;
 				}
 			}
 		} else {

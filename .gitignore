@@ -1,0 +1,7 @@
+# Package Files #
+*.war
+*.ear
+
+.DS_Store
+
+bin/    # ignore all files in the bin/ directory

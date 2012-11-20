@@ -21,4 +21,8 @@ public class Tag_File extends Tag {
 		this.origin_ID = origin_ID;
 		this.score = score;
 	}
+	
+	public void display(){
+		
+	}
 }

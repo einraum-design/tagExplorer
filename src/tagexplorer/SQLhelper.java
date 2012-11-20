@@ -157,4 +157,38 @@ public class SQLhelper {
 			}
 		}
 	}
+	
+	
+	public boolean inDataBase(String tableName, String theText) {
+		boolean isInDB = false;
+
+		ArrayList<Tag> tagList = queryTagList(tableName);
+
+		for (Tag t : tagList) {
+			if (t instanceof Tag_Location) {
+				// System.out.println("Location: " + t.name.trim().toLowerCase()
+				// + "\t"
+				// + (theText.trim().toLowerCase()));
+				if (t.name.trim().toLowerCase()
+						.equals(theText.trim().toLowerCase())) {
+					isInDB = true;
+					return isInDB;
+				}
+			} else if (t instanceof Tag_File) {
+				// path!
+				// System.out.println("File: " + ((Tag_File)
+				// t).path.toLowerCase()
+				// + "\t" + (theText.toLowerCase()));
+				if (((Tag_File) t).path.trim().toLowerCase()
+						.equals(theText.trim().toLowerCase())) {
+					isInDB = true;
+					return isInDB;
+				}
+			} else {
+				System.out.println("What kind of Tag is it? in inDataBase()");
+			}
+			System.out.println(t.toString());
+		}
+		return isInDB;
+	}
 }
